@@ -36,7 +36,9 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 
 	public function get($name = '', $pool = array(), $default = NULL, $sensitive = FALSE) {
 		if (! is_array($name)) {
-			$name = (string) serialize($name);
+			if (! is_string($name)) {
+				$name = (string) serialize($name);
+			}
 		}
 
 		$pool = (array) $pool;
@@ -63,7 +65,7 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 
 		if (is_array($name)) {
 			foreach ($name as $possibleName) {
-				if (isset($pool[$possibleName])) {
+				if (array_key_exists($possibleName, $pool)) {
 					$option = $pool[$possibleName];
 
 					break;
