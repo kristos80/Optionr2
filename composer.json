@@ -1,0 +1,19 @@
+{
+	"name" : "kristos80/optionr2",
+	"type" : "project",
+	"require" : {
+		"petrknap/php-singleton" : "^1.0"
+	},
+	"license" : "MIT",
+	"authors" : [{
+			"name" : "Christos Athanasiadis",
+			"email" : "christos.k.athanasiadis@gmail.com"
+		}
+	],
+	"minimum-stability" : "stable",
+	"autoload" : {
+		"psr-4" : {
+			"Kristos80\\Optionr2\\" : "src/"
+		}
+	}
+}
