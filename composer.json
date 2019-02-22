@@ -1,6 +1,6 @@
 {
 	"name" : "kristos80/optionr2",
-	"type" : "project",
+	"type" : "library",
 	"require" : {
 		"petrknap/php-singleton" : "^1.0"
 	},
