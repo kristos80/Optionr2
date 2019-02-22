@@ -1,5 +1,7 @@
 # Optionr2
 
+composer require kristos80/optionr2
+
 Optionr is a simple class with a single method ->get() that makes it extremely easy to grab an option 
 from an array of options.
 
