@@ -15,5 +15,6 @@
 		"psr-4" : {
 			"Kristos80\\Optionr2\\" : "src/"
 		}
-	}
+	},
+	"description" : "A simple helper to easily get an option from an array of options"
 }
