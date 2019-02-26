@@ -31,19 +31,19 @@ declare(strict_types = 1);
 namespace Kristos80\Optionr2;
 
 class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
-
+	
 	use \PetrKnap\Php\Singleton\SingletonTrait;
-
+	
 	public function get($name = '', $pool = array(), $default = NULL, $sensitive = FALSE) {
 		if (! is_array($name)) {
 			if (! is_string($name)) {
 				$name = (string) serialize($name);
 			}
 		}
-
+		
 		$pool = (array) $pool;
 		$option = $default;
-
+		
 		if (! $sensitive) {
 			if (! is_array($name)) {
 				$name = strtolower($name);
@@ -54,27 +54,28 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 				}
 				$name = $name_;
 			}
-
+			
 			$pool_ = array();
 			foreach ($pool as $poolKey => $poolValue) {
-				$pool_[strtolower($poolKey)] = $poolValue;
+				$pool_[strtolower((string)$poolKey)] = $poolValue;
 			}
-
+			
 			$pool = $pool_;
 		}
-
+		
 		if (is_array($name)) {
 			foreach ($name as $possibleName) {
 				if (array_key_exists($possibleName, $pool)) {
-					$option = $pool[$possibleName];
-
+					if ($pool[$possibleName]) {
+						$option = $pool[$possibleName];
+					}
 					break;
 				}
 			}
 		} else {
-			$option = array_key_exists($name, $pool) ? $pool[$name] : $option;
+			$option = array_key_exists($name, $pool) ? ($pool[$name] ? $pool['name'] : $option) : $option;
 		}
-
+		
 		return $option;
 	}
 }
