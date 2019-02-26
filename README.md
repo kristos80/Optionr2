@@ -1,7 +1,10 @@
-# Optionr2
-
+## Install
+Install latest version using [composer](https://getcomposer.org/).
+```sh
 composer require kristos80/optionr2
+```
 
+## Optionr
 Optionr is a simple class with a single method ->get() that makes it extremely easy to grab an option 
 from an array of options.
 
