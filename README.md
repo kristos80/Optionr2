@@ -8,6 +8,16 @@ $ composer require kristos80/optionr2
 Optionr is a simple class with a single method ->get() that makes it extremely easy to grab an option 
 from an array of options.
 
+```php
+/*
+*  @param string|array	$name		A string or an array containing the name of the key/attribute to search for
+*  @param array|object	$pool 		An array or an object to whose keys/properties will search in
+*  @param mixed		$default	Default value if nothing is found
+*  @param bool		$sensitive	Case sensitive search
+*/
+public function get($name = '', $pool = array(), $default = NULL, $sensitive = FALSE) 
+```
+
 Examples include, but not limited to:
 
 ```php
