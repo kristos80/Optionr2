@@ -73,7 +73,7 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 				}
 			}
 		} else {
-			$option = array_key_exists($name, $pool) ? ($pool[$name] ? $pool['name'] : $option) : $option;
+			$option = array_key_exists($name, $pool) ? ($pool[$name] ? $pool[$name] : $option) : $option;
 		}
 		
 		return $option;
