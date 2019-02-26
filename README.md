@@ -1,6 +1,6 @@
 ## Install
 Install latest version using [composer](https://getcomposer.org/).
-```sh
+```
 $ composer require kristos80/optionr2
 ```
 
