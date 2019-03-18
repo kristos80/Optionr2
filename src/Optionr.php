@@ -4,22 +4,28 @@ declare(strict_types = 1);
 /*
  * Copyright (c) 2019 Christos Athanasiadis
  *
- * Permission is hereby granted, free of charge, to any person obtaining a copy
- * of this software and associated documentation files (the "Software"), to deal
- * in the Software without restriction, including without limitation the rights
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal
+ * in the Software without restriction, including without limitation the
+ * rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
+ * The above copyright notice and this permission notice shall be included in
+ * all
  * copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
- * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
- * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE
  * SOFTWARE.
  */
 
@@ -36,7 +42,7 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 	
 	public function get($name = '', $pool = array(), $default = NULL, $sensitive = FALSE) {
 		if (! is_array($name)) {
-			if (! is_string($name)) {
+			if (! is_string($name) && ! is_numeric($name)) {
 				$name = (string) serialize($name);
 			}
 		}
@@ -46,7 +52,7 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 		
 		if (! $sensitive) {
 			if (! is_array($name)) {
-				$name = strtolower($name);
+				$name = ! is_numeric($name) ? strtolower($name) : $name;
 			} else {
 				$name_ = array();
 				foreach ($name as $name__) {
@@ -57,7 +63,7 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 			
 			$pool_ = array();
 			foreach ($pool as $poolKey => $poolValue) {
-				$pool_[strtolower((string)$poolKey)] = $poolValue;
+				$pool_[strtolower((string) $poolKey)] = $poolValue;
 			}
 			
 			$pool = $pool_;
