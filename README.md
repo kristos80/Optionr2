@@ -10,12 +10,13 @@ from an array of options.
 
 ```php
 /*
-*  @param string|array	$name		A string or an array containing the name of the key/attribute to search for
-*  @param array|object	$pool 		An array or an object to whose keys/properties will search in
-*  @param mixed		$default	Default value if nothing is found
-*  @param bool		$sensitive	Case sensitive search
+*  @param string|array|object  $name    A string/arr/obj containing the name of the key/attribute to search for
+*  @param array|object  $pool 		    An arr/object to whose keys/properties will search in
+*  @param mixed         $default	    Default value if nothing is found
+*  @param bool          $sensitive	    Case sensitive search
+*  @param bool|array    $acceptedValues A pool of values that the return/default value should belong to
 */
-public function get($name = '', $pool = array(), $default = NULL, $sensitive = FALSE) 
+public function get($name = '', $pool = array(), $default = NULL, $sensitive = FALSE, $acceptedValues = FALSE) 
 ```
 
 Examples include, but not limited to:
