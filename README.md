@@ -19,7 +19,7 @@ from an array of options.
 public function get($name = '', $pool = array(), $default = NULL, $sensitive = FALSE, $acceptedValues = FALSE) 
 ```
 ## Version 2.0.0 Update
-Class is now callable, so all examples can be rewritten t
+Class is now callable, so all examples can be rewritten without the need of the ```->get()``` method
 
 ## Examples
 Examples include, but not limited to:
