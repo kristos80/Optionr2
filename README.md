@@ -10,11 +10,11 @@ from an array of options.
 
 ```php
 /*
-*  @param string|array|object  $name    A string/arr/obj containing the name of the key/attribute to search for
-*  @param array|object  $pool 		    An arr/object to whose keys/properties will search in
-*  @param mixed         $default	    Default value if nothing is found
-*  @param bool          $sensitive	    Case sensitive search
-*  @param bool|array    $acceptedValues A pool of values that the return/default value should belong to
+*  @param string|array|object	$name    	A string/arr/obj containing the name of the key/attribute to search for
+*  @param array|object  	$pool 		An arr/object to whose keys/properties will search in
+*  @param mixed         	$default	Default value if nothing is found
+*  @param bool          	$sensitive	Case sensitive search
+*  @param bool|array    	$acceptedValues A pool of values that the return/default value should belong to
 */
 public function get($name = '', $pool = array(), $default = NULL, $sensitive = FALSE, $acceptedValues = FALSE) 
 ```
@@ -22,30 +22,108 @@ public function get($name = '', $pool = array(), $default = NULL, $sensitive = F
 Examples include, but not limited to:
 
 ```php
+<?php
 require_once 'vendor/autoload.php';
-use Kristos80\Optionr2\Optionr as Optionr;
-define('DEFAULT_VALUE_CONS', 'Value4');
+use Kristos80\Optionr2\Optionr as Options;
 
-$option = new Optionr();
+$options = new Options();
 
-$poolOfValues = array(
-	'key1' => 'valueOf_key1',
-	'key2' => 'valueOf_key2',
-	'Key2' => 'valueOf_Key2',
+define('POOL_ONE_DEFAULT_VALUE', 'Value not found');
+$poolOne = array(
+	'value_1' => 'a',
+	'value_2' => 'b',
+	'value_3' => 'c',
+);
+$poolOneAcceptedValues = array(
+	'd',
+	'e',
+	'f'
 );
 
-$value1 = $option->get('key1', $poolOfValues); // ==> valueOf_key1
-$value2 = $option->get(array(
-	'key2',
-	'Key2'
-), (object) $poolOfValues); // ==> valueOf_Key2
-                           // because during runtime the last value will override
-                           // any similar named keys (keyName, keyname, KEYNAME, etc)
-$value3 = $option->get(array(
-	'key2'
-), $poolOfValues, NULL, TRUE); // ==> valueOf_key2 (lower k)
-                              // because 4rd parameter makes the search case sensitive
-$value4 = $option->get(array(
-	'KeyDoesntExist'
-), $poolOfValues, DEFAULT_VALUE_CONS); // ==> Value4
+$poolTwo = new stdClass();
+$poolTwo->value_1 = 'a';
+$poolTwo->value_2 = 'b';
+$poolTwo->value_3 = 'c';
+
+// Example #1
+// ==> `a`
+// The simplest example
+echo 'Example #1: ';
+echo $options->get('value_1', $poolOne);
+echo '<br/>';
+
+// Example #2
+// ==> `Value not found`
+// Because the search is case sensitive (4th parameter) no value found,
+// so the returned value falls back to the default (3rd parameter).
+// Note that Parameter 2 can be an array or object
+echo 'Example #2: ';
+echo $options->get('Value_1', $poolTwo, POOL_ONE_DEFAULT_VALUE, TRUE);
+echo '<br/>';
+
+// Example #3
+// ==> `` (null)
+// Because the search is case sensitive (4th parameter) no value found,
+// so the returned value falls back to the default (3rd parameter),
+// but the default value is not within the accepted values (5th parameter)
+echo 'Example #3: ';
+echo $options->get('Value_1', $poolOne, POOL_ONE_DEFAULT_VALUE, TRUE, $poolOneAcceptedValues);
+echo '<br/>';
+
+// Examples #4.1, #4.2
+// ==> `b`
+// Parameter 1 can be an array or object. The return value is the first one to
+// be found.
+// Note that by default the search is not sensitive, so Value_2 = value_2
+echo 'Example #4.1: ';
+echo $options->get(array(
+	'Value_2',
+	'value_3',
+), $poolOne);
+echo '<br/>';
+
+echo 'Example #4.2: ';
+echo $options->get((object) array(
+	'value_2',
+	'value_3',
+), $poolTwo);
+echo '<br/>';
+
+// Example #5
+// ==> `Customer Id cannot be empty`
+echo doSomethingVeryComplex(array(
+	'mode' => 'FIND_CUSTOMER'
+));
+echo '<br/>';
+
+// Examples #6
+// ==> `This is id is way too old to have it in a database`
+echo doSomethingVeryComplex(array(
+	'mode' => 'FIND_CUSTOMER',
+	'customerId' => 4,
+));
+echo '<br/>';
+echo doSomethingVeryComplex(array(
+	'mode' => 'FIND_CUSTOMER',
+	'ID' => 4,
+));
+echo '<br/>';
+
+function doSomethingVeryComplex($config = array()) {
+	$options = new Options();
+	$mode = $options->get('mode', $config);
+
+	if ($mode === 'FIND_CUSTOMER') {
+		$id = $options->get(array(
+			'id',
+			'customerId'
+		), $config);
+		if ($id === NULL) {
+			return 'Customer Id cannot be empty';
+		}
+		if ($id <= 5) {
+			return 'This is id is way too old to have it in a database';
+		}
+	}
+}
 ```
