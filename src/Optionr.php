@@ -34,6 +34,12 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 
 	use \PetrKnap\Php\Singleton\SingletonTrait;
 
+	public function __invoke($name = '', $pool = array(), $default = NULL, bool $sensitive = FALSE, $acceptedValues = FALSE) {
+		if ($name) {
+			return $this->get($name, $pool, $default, $sensitive, $acceptedValues);
+		}
+	}
+
 	/**
 	 *
 	 * @param string|array|object $name
