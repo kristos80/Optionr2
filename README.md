@@ -20,8 +20,10 @@ public function get($name = '', $pool = array(), $default = NULL, $sensitive = F
 ```
 ## Version 2.0.0 Update
 Class is now callable, so all examples can be rewritten without the need of the ```->get()``` method
-***When the class is used within another class the class SHOULD BE WRAPPED in `()` eg ($this->options)($name,$pool)***
-***see https://stackoverflow.com/questions/41460662/why-php-invoke-not-working-when-triggered-from-an-object-property***
+
+***When the class is used within another class, the class SHOULD BE WRAPPED in `()`***
+```($this->options)($name,$pool)```
+***see [here](https://stackoverflow.com/questions/41460662/why-php-invoke-not-working-when-triggered-from-an-object-property)***
 
 ## Examples
 Examples include, but not limited to:
