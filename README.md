@@ -1,4 +1,7 @@
 ## Install
+
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/3adeff3bb790438a887f79bc73456010)](https://app.codacy.com/app/kristos80/Optionr2?utm_source=github.com&utm_medium=referral&utm_content=kristos80/Optionr2&utm_campaign=Badge_Grade_Dashboard)
+
 Install latest version using [composer](https://getcomposer.org/).
 ```
 $ composer require kristos80/optionr2
