@@ -8,16 +8,17 @@ $ composer require kristos80/optionr2
 ```
 
 ## Optionr
-Optionr is a simple class with a single method ->get() that makes it extremely easy to grab an option 
-from an array of options.
+Optionr is a simple helper with a single method ->get() that makes it extremely easy to grab an option 
+from a collection of options
 
 ```php
 /*
-*  @param string|array|object	$name    	A string/arr/obj containing the name of the key/attribute to search for
-*  @param array|object  	$pool 		An arr/object to whose keys/properties will search in
-*  @param mixed         	$default	Default value if nothing is found
-*  @param bool          	$sensitive	Case sensitive search
-*  @param bool|array    	$acceptedValues A pool of values that the return/default value should belong to
+* @param string|array|object $name
+* @param array|object $pool
+* @param mixed $default
+* @param bool $sensitive
+* @param bool|array $acceptedValues
+* @return mixed
 */
 public function get($name = '', $pool = array(), $default = NULL, $sensitive = FALSE, $acceptedValues = FALSE) 
 ```
@@ -30,112 +31,130 @@ Class is now callable, so all examples can be rewritten without the need of the 
 
 ***see [here](https://stackoverflow.com/questions/41460662/why-php-invoke-not-working-when-triggered-from-an-object-property)***
 
+## Version 3.0.0 Update
+```get``` method can now accept a configuration array/object as a single parameter. ***See examples*** 
+
 ## Examples
 Examples include, but not limited to:
 
 ```php
-<?php
 require_once 'vendor/autoload.php';
-use Kristos80\Optionr2\Optionr as Options;
+$options = new \Kristos80\Optionr2\Optionr();
 
-$options = new Options();
-
-define('POOL_ONE_DEFAULT_VALUE', 'Value not found');
-$poolOne = array(
-	'value_1' => 'a',
-	'value_2' => 'b',
-	'value_3' => 'c',
-);
-$poolOneAcceptedValues = array(
-	'd',
-	'e',
-	'f'
+# Example 1 ================================
+$example1LookingForVar = 'index1';
+$example1Pool = array(
+	'index1' => 'valueOfIndex1',
+	'index2' => 'valueOfIndex2',
 );
 
-$poolTwo = new stdClass();
-$poolTwo->value_1 = 'a';
-$poolTwo->value_2 = 'b';
-$poolTwo->value_3 = 'c';
-
-// Example #1
-// ==> `a`
-// The simplest example
-echo 'Example #1: ';
-echo $options->get('value_1', $poolOne);
-echo '<br/>';
-
-// Example #2
-// ==> `Value not found`
-// Because the search is case sensitive (4th parameter) no value found,
-// so the returned value falls back to the default (3rd parameter).
-// Note that Parameter 2 can be an array or object
-echo 'Example #2: ';
-echo $options->get('Value_1', $poolTwo, POOL_ONE_DEFAULT_VALUE, TRUE);
-echo '<br/>';
-
-// Example #3
-// ==> `` (null)
-// Because the search is case sensitive (4th parameter) no value found,
-// so the returned value falls back to the default (3rd parameter),
-// but the default value is not within the accepted values (5th parameter)
-echo 'Example #3: ';
-echo $options->get('Value_1', $poolOne, POOL_ONE_DEFAULT_VALUE, TRUE, $poolOneAcceptedValues);
-echo '<br/>';
-
-// Examples #4.1, #4.2
-// ==> `b`
-// Parameter 1 can be an array or object. The return value is the first one to
-// be found.
-// Note that by default the search is not sensitive, so Value_2 = value_2
-echo 'Example #4.1: ';
-echo $options->get(array(
-	'Value_2',
-	'value_3',
-), $poolOne);
-echo '<br/>';
-
-echo 'Example #4.2: ';
-echo $options->get((object) array(
-	'value_2',
-	'value_3',
-), $poolTwo);
-echo '<br/>';
-
-// Example #5
-// ==> `Customer Id cannot be empty`
-echo doSomethingVeryComplex(array(
-	'mode' => 'FIND_CUSTOMER'
+$example1Result1 = $options->get($example1LookingForVar, $example1Pool);
+$example1Result2 = $options->get(array(
+	'name' => $example1LookingForVar,
+	'pool' => $example1Pool,
 ));
-echo '<br/>';
 
-// Examples #6
-// ==> `This is id is way too old to have it in a database`
-echo doSomethingVeryComplex(array(
-	'mode' => 'FIND_CUSTOMER',
-	'customerId' => 4,
+# Example 1 print ================================
+var_dump($example1Result1);
+var_dump($example1Result2);
+var_dump($example1Result1 === $example1Result2);
+
+echo "\r\n";
+
+# Example 2 ================================
+$example2LookingForVar = array(
+	'index2',
+	'index1'
+);
+
+$example2Pool = new \stdClass();
+$example2Pool->index1 = 'valueOfIndex1';
+$example2Pool->index2 = 'valueOfIndex2';
+
+$example2Result = $options->get(array(
+	'name' => $example2LookingForVar,
+	'pool' => $example2Pool,
 ));
-echo '<br/>';
-echo doSomethingVeryComplex(array(
-	'mode' => 'FIND_CUSTOMER',
-	'ID' => 4,
+
+# Example 2 print ================================
+var_dump($example2Result);
+
+echo "\r\n";
+
+# Example 3 ================================
+$example3LookingForVar = array(
+	'index2',
+	'index1',
+	'index0',
+);
+
+$example3Pool = new \stdClass();
+$example3Pool->index4 = 'valueOfIndex4';
+$example3Pool->index5 = 'valueOfIndex5';
+$example3Pool->index6 = 'valueOfIndex6';
+
+$example3Result = $options->get(array(
+	'name' => $example3LookingForVar,
+	'pool' => $example3Pool,
+	# default can be passed as defaultValue as well ;) === 'defaultValue' => 'defaultValue'
+	'default' => 'defaultValue',
 ));
-echo '<br/>';
 
-function doSomethingVeryComplex($config = array()) {
-	$options = new Options();
-	$mode = $options->get('mode', $config);
+# Example 3 print ================================
+var_dump($example3Result);
 
-	if ($mode === 'FIND_CUSTOMER') {
-		$id = $options->get(array(
-			'id',
-			'customerId'
-		), $config);
-		if ($id === NULL) {
-			return 'Customer Id cannot be empty';
-		}
-		if ($id <= 5) {
-			return 'This is id is way too old to have it in a database';
-		}
-	}
-}
+echo "\r\n";
+
+# Example 4 ================================
+$example4LookingForVar = 'index4';
+
+$example4Pool = new \stdClass();
+$example4Pool->index4 = 'valueOfIndex4';
+
+$example4DefaultValue = 'anyOtherValueButNotIndex4';
+
+$example4SensitiveSearch = FALSE;
+
+$example4AcceptedValues = array(
+	'valueOfIndex4IsNotAllowed',
+	'anyOtherValueButNotIndex4',
+);
+
+$example4Result = $options->get($example4LookingForVar, $example4Pool, $example4DefaultValue, $example4SensitiveSearch, $example4AcceptedValues);
+# Example 4 print ================================
+var_dump($example4Result);
+
+echo "\r\n";
+
+# Example 5 ================================
+$example5LookingForVar = 'Index4';
+
+$example5Pool = array(
+	'index4' => 'valueOfIndex4'
+);
+
+$example5DefaultValue = NULL;
+
+$example5SensitiveSearch = TRUE;
+
+$example5Result = $options->get($example5LookingForVar, $example5Pool, $example5DefaultValue, $example5SensitiveSearch);
+# Example 5 print ================================
+var_dump($example5Result);
+
+echo "\r\n";
+
+/** Prints ================================
+string(13) "valueOfIndex1"
+string(13) "valueOfIndex1"
+bool(true)
+
+string(13) "valueOfIndex2"
+
+string(12) "defaultValue"
+
+string(25) "anyOtherValueButNotIndex4"
+
+NULL
+
+ ================================ **/
 ```
