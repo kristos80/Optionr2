@@ -16,5 +16,5 @@
 			"Kristos80\\Optionr2\\" : "src/"
 		}
 	},
-	"description" : "A simple helper to easily get an option from an array of options"
+	"description" : "Optionr is a simple helper that makes it extremely easy to grab an option from a collection of options, without the need to make all those 'isset' and 'array_key_exists' comparisons."
 }
