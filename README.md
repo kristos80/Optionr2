@@ -1,6 +1,7 @@
 # Optionr2
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/3adeff3bb790438a887f79bc73456010)](https://app.codacy.com/app/kristos80/Optionr2?utm_source=github.com&utm_medium=referral&utm_content=kristos80/Optionr2&utm_campaign=Badge_Grade_Dashboard)
+[![Maintainability](https://api.codeclimate.com/v1/badges/c06685bcf60ec4ec0d04/maintainability)](https://codeclimate.com/github/kristos80/Optionr2/maintainability)
 
 ## Install
 
