@@ -144,8 +144,8 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 				if (array_key_exists($possibleName, $pool)) {
 					if ($pool[$possibleName]) {
 						$option = $pool[$possibleName];
+						break;
 					}
-					break;
 				}
 			}
 		} else {
