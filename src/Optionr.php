@@ -22,7 +22,7 @@ declare(strict_types = 1);
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-namespace Kristos80\Optionr2;
+namespace Kristos80;
 
 /**
  * Optionr is a simple class that makes it extremely easy to grab an option from a collection of
@@ -31,9 +31,9 @@ namespace Kristos80\Optionr2;
  * @author Christos Athanasiadis <christos.k.athanasiadis@gmail.com>
  * @license https://www.opensource.org/licenses/mit-license.php
  */
-class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
+class Optionn implements \PetrKnap\Php\Singleton\SingletonInterface {
 	use \PetrKnap\Php\Singleton\SingletonTrait;
-
+	
 	/**
 	 * Invoke main method
 	 *
@@ -44,10 +44,10 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 	 * @param bool|array $acceptedValues
 	 * @return mixed
 	 */
-	public function __invoke($name = '', $pool = array(), $default = NULL, $sensitive = FALSE, $acceptedValues = FALSE) {
+	public function __invoke($name = '', $pool = array(), $default = NULL, $sensitive = FALSE, $acceptedValues = array()) {
 		return $this->get($name, $pool, $default, $sensitive, $acceptedValues);
 	}
-
+	
 	/**
 	 * Main method
 	 *
@@ -58,126 +58,140 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 	 * @param bool|array $acceptedValues
 	 * @return mixed
 	 */
-	public function get($name = '', $pool = array(), $default = NULL, $sensitive = FALSE, $acceptedValues = FALSE) {
-		# We check the possibility that the user passed all arguments in one variable
-		#
-		# Example:
-		#
-		# get(array(
-		#  'name' => 'option',
-		#  'pool' => array(
-		#		'option' => TRUE,
-		#		'otherOption' => FALSE,
-		#	),
-		#	'default' => FALSE,
-		#	'sensitive' => TRUE,
-		#	'acceptedValues' => array(
-		#		TRUE,
-		#		FALSE
-		#	),
-		# ));
+	public function get($name = '', $pool = array(), $default = NULL, $sensitive = FALSE, $acceptedValues = array()) {
+		if ($config = $this->nameIsConfiguration($name)) {
+			$name = $this->get('name', $config);
+			$pool = $this->get('pool', $config);
+			$default = $this->get(array(
+				'default',
+				'defaultValue',
+			), $config);
+			$sensitive = $this->get('sensitive', $config);
+			$acceptedValues = $this->get('acceptedValues', $config);
+		}
+		
+		$name = $this->convertNameToCompatibleStructure($name, (bool) $sensitive);
+		$pool = $this->convertPoolToCompatibleStructure($pool, (bool) $sensitive);
+		$acceptedValues = $this->convertAcceptedValuesToCompatibleStructure($acceptedValues);
+		
+		$option = $this->find($name, $pool, $default);
+		$option = $this->validateValue($option, $acceptedValues, $default);
+		
+		return $option;
+	}
+	
+	/**
+	 *
+	 * @param mixed $name
+	 * @return boolean|array
+	 */
+	protected function nameIsConfiguration($name = '') {
 		$nameIsConfiguration = FALSE;
+		
 		if (is_array($name) || is_object($name)) {
 			$name = (array) $name;
 			if (isset($name['name']) && isset($name['pool'])) {
 				$nameIsConfiguration = TRUE;
 			}
 		}
-
-		# name is a configuration array, so let's do some recursion
-		if ($nameIsConfiguration) {
-			$name_ = $name;
-			$name = $this->get('name', $name_, '');
-			$pool = $this->get('pool', $name_, $pool);
-			$default = $this->get(array(
-				'default',
-				'defaultValue',
-			), $name_, $default);
-			$sensitive = $this->get('sensitive', $name_, $sensitive);
-			$acceptedValues = $this->get('acceptedValues', $name_, $acceptedValues);
+		
+		return $nameIsConfiguration ? $name : FALSE;
+	}
+	
+	/**
+	 *
+	 * @param mixed $name
+	 * @param bool $sensitive
+	 * @return array
+	 */
+	protected function convertNameToCompatibleStructure($name = '', bool $sensitive): array {
+		if (is_string($name) || is_numeric($name)) {
+			$name = array(
+				$name,
+			);
 		}
-
-		# We check all posibilities that could give us a valid name.
-		# In different case we do create one, so that the code doesn't break
-		if (! is_array($name) && ! is_object($name) && ! is_string($name) && ! is_numeric($name)) {
-			$name = (string) serialize($name);
-		}
-
-		# Cast name as array and remove indexes as they play no role
-		if (is_object($name)) {
-			$name = array_values((array) $name);
-		}
-
-		# We cast the pool to array so that we can traverse it
+		
+		$name = array_values((array) $name);
+		
+		return $sensitive ? $this->flatten($name) : $name;
+	}
+	
+	/**
+	 *
+	 * @param mixed $pool
+	 * @param bool $sensitive
+	 * @return array
+	 */
+	protected function convertPoolToCompatibleStructure($pool = array(), bool $sensitive): array {
 		$pool = (array) $pool;
-
-		# Default value
+		
+		return $sensitive ? $this->flatten($pool) : $pool;
+	}
+	
+	/**
+	 *
+	 * @param mixed $acceptedValues
+	 * @return array
+	 */
+	protected function convertAcceptedValuesToCompatibleStructure($acceptedValues): array {
+		$acceptedValues = array_values((array) $acceptedValues);
+		
+		return $acceptedValues;
+	}
+	
+	/**
+	 *
+	 * @param array $objectToFlatten
+	 * @return array
+	 */
+	protected function flatten(array $objectToFlatten = array()): array {
+		$objectToFlatten_ = array();
+		foreach ($objectToFlatten as $objectToFlattenKey => $objectToFlattenValue) {
+			$objectToFlatten_[strtolower((string) $objectToFlattenKey)] = $objectToFlattenValue;
+		}
+		
+		return $objectToFlatten_;
+	}
+	
+	/**
+	 *
+	 * @param array $name
+	 * @param array $pool
+	 * @param mixed $default
+	 * @return mixed
+	 */
+	protected function find(array $name = array(), array $pool = array(), $default) {
 		$option = $default;
-
-		# If we don't make case sensitive searches, we need to flat all keys to lower case ones
-		if (! (bool) $sensitive) {
-			# Name is string or number
-			if (! is_array($name) && ! is_object($name)) {
-				# Lower case string name. Keep number intact
-				$name = ! is_numeric($name) ? strtolower($name) : $name;
-			} else {
-				# Traverse name and lower case values
-				$name_ = array();
-				foreach ($name as $name__) {
-					$name_[] = strtolower($name__);
-				}
-				$name = $name_;
-			}
-
-			# Traverse pool and lower case values
-			$pool_ = array();
-			foreach ($pool as $poolKey => $poolValue) {
-				$pool_[strtolower((string) $poolKey)] = $poolValue;
-			}
-
-			$pool = $pool_;
-		}
-
-		# Traverse name if is array until name is found in pool keys
-		if (is_array($name)) {
-			foreach ($name as $possibleName) {
-				if (array_key_exists($possibleName, $pool)) {
-					if ($pool[$possibleName]) {
-						$option = $pool[$possibleName];
-						break;
-					}
+		foreach ($name as $possibleName) {
+			if (array_key_exists($possibleName, $pool)) {
+				if ($pool[$possibleName]) {
+					$option = $pool[$possibleName];
+					break;
 				}
 			}
-		} else {
-			# name is string or numeric, so we check if exists as key in pool, otherwise we return the default value
-			$option = array_key_exists($name, $pool) ? $pool[$name] : $option;
 		}
-
-		# Accepted values were set...
-		if ($acceptedValues !== FALSE) {
-			# ...but we accept only array or object...
-			if (! is_array($acceptedValues) && ! is_object($acceptedValues)) {
-				$acceptedValues = FALSE;
-			} else {
-				# ...which is casted to a numeric indexed array as keys play no role (again)
-				$acceptedValues = array_values((array) $acceptedValues);
-			}
-		}
-
-		# We check against accepted values
-		if ($acceptedValues !== FALSE) {
-			# The value is not within accepted values...
+		
+		return $option;
+	}
+	
+	/**
+	 *
+	 * @param mixed $option
+	 * @param array $acceptedValues
+	 * @param mixed $default
+	 * @return mixed|NULL
+	 */
+	protected function validateValue($option, array $acceptedValues = array(), $default) {
+		if (count($acceptedValues)) {
 			if (! in_array($option, $acceptedValues)) {
-				# ...But the default value is not within as well, so we reset it
 				if (! in_array($default, $acceptedValues)) {
 					$default = NULL;
 				}
-
-				# Reset returned value to default
+				
 				$option = $default;
 			}
 		}
-
+		
 		return $option;
 	}
 }
