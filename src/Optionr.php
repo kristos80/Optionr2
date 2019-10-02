@@ -22,7 +22,7 @@ declare(strict_types = 1);
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
  * DEALINGS IN THE SOFTWARE.
  */
-namespace Kristos80;
+namespace Kristos80\Optionr2;
 
 /**
  * Optionr is a simple class that makes it extremely easy to grab an option from a collection of
@@ -31,7 +31,7 @@ namespace Kristos80;
  * @author Christos Athanasiadis <christos.k.athanasiadis@gmail.com>
  * @license https://www.opensource.org/licenses/mit-license.php
  */
-class Optionn implements \PetrKnap\Php\Singleton\SingletonInterface {
+class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 	use \PetrKnap\Php\Singleton\SingletonTrait;
 	
 	/**
