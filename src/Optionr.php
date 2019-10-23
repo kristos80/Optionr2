@@ -96,6 +96,7 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 	 */
 	protected function fixes(string $preSuf): array {
 		$fixesToks = explode('\,', $preSuf);
+
 		$prefix = FALSE;
 		$suffix = FALSE;
 		if (substr($fixesToks[0], 0, 4) === 'PRE:') {
@@ -119,7 +120,7 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 		}
 
 		return array(
-			'pre' => $prefix ?: $preSuf,
+			'pre' => $prefix ?: (! $suffix ? $preSuf : ''),
 			'suf' => $suffix,
 		);
 	}
