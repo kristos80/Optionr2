@@ -33,7 +33,7 @@ namespace Kristos80\Optionr2;
  */
 class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 	use \PetrKnap\Php\Singleton\SingletonTrait;
-	
+
 	/**
 	 * Invoke main method
 	 *
@@ -42,12 +42,14 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 	 * @param mixed $default
 	 * @param bool $sensitive
 	 * @param bool|array $acceptedValues
+	 * @param string $preSuf
+	 *
 	 * @return mixed
 	 */
-	public function __invoke($name = '', $pool = array(), $default = NULL, $sensitive = FALSE, $acceptedValues = array()) {
-		return $this->get($name, $pool, $default, $sensitive, $acceptedValues);
+	public function __invoke($name = '', $pool = array(), $default = NULL, $sensitive = FALSE, $acceptedValues = array(), string $preSuf = '') {
+		return $this->get($name, $pool, $default, $sensitive, $acceptedValues, $preSuf);
 	}
-	
+
 	/**
 	 * Main method
 	 *
@@ -56,9 +58,11 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 	 * @param mixed $default
 	 * @param bool $sensitive
 	 * @param bool|array $acceptedValues
+	 * @param string $preSuf
+	 *
 	 * @return mixed
 	 */
-	public function get($name = '', $pool = array(), $default = NULL, $sensitive = FALSE, $acceptedValues = array()) {
+	public function get($name = '', $pool = array(), $default = NULL, $sensitive = FALSE, $acceptedValues = array(), string $preSuf = '') {
 		if ($config = $this->nameIsConfiguration($name)) {
 			$name = $this->get('name', $config);
 			$pool = $this->get('pool', $config);
@@ -69,17 +73,57 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 			$sensitive = $this->get('sensitive', $config);
 			$acceptedValues = $this->get('acceptedValues', $config);
 		}
-		
+
 		$name = $this->convertNameToCompatibleStructure($name, (bool) $sensitive);
 		$pool = $this->convertPoolToCompatibleStructure($pool, (bool) $sensitive);
 		$acceptedValues = $this->convertAcceptedValuesToCompatibleStructure($acceptedValues);
-		
+
 		$option = $this->find($name, $pool, $default);
 		$option = $this->validateValue($option, $acceptedValues, $default);
-		
+
+		if (is_string($option) && $preSuf) {
+			$fixes = $this->fixes($preSuf);
+			$option = $fixes['pre'] . $option . $fixes['suf'];
+		}
+
 		return $option;
 	}
-	
+
+	/**
+	 *
+	 * @param string $preSuf
+	 * @return string
+	 */
+	protected function fixes(string $preSuf): array {
+		$fixesToks = explode('\,', $preSuf);
+		$prefix = FALSE;
+		$suffix = FALSE;
+		if (substr($fixesToks[0], 0, 4) === 'PRE:') {
+			$prefix = substr($fixesToks[0], 4);
+		}
+
+		if (substr($fixesToks[0], 0, 4) === 'SUF:') {
+			$suffix = substr($fixesToks[0], 4);
+		}
+
+		if (isset($fixesToks[1])) {
+			if ($prefix) {
+				if (substr($fixesToks[1], 0, 4) === 'SUF:') {
+					$suffix = substr($fixesToks[1], 4);
+				}
+			} else {
+				if (substr($fixesToks[1], 0, 4) === 'PRE:') {
+					$prefix = substr($fixesToks[1], 4);
+				}
+			}
+		}
+
+		return array(
+			'pre' => $prefix ?: $preSuf,
+			'suf' => $suffix,
+		);
+	}
+
 	/**
 	 *
 	 * @param mixed $name
@@ -87,17 +131,17 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 	 */
 	protected function nameIsConfiguration($name = '') {
 		$nameIsConfiguration = FALSE;
-		
+
 		if (is_array($name) || is_object($name)) {
 			$name = (array) $name;
 			if (isset($name['name']) && isset($name['pool'])) {
 				$nameIsConfiguration = TRUE;
 			}
 		}
-		
+
 		return $nameIsConfiguration ? $name : FALSE;
 	}
-	
+
 	/**
 	 *
 	 * @param mixed $name
@@ -110,12 +154,12 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 				$name,
 			);
 		}
-		
+
 		$name = array_values((array) $name);
-		
+
 		return $sensitive ? $this->flatten($name) : $name;
 	}
-	
+
 	/**
 	 *
 	 * @param mixed $pool
@@ -124,10 +168,10 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 	 */
 	protected function convertPoolToCompatibleStructure($pool = array(), bool $sensitive): array {
 		$pool = (array) $pool;
-		
+
 		return $sensitive ? $this->flatten($pool) : $pool;
 	}
-	
+
 	/**
 	 *
 	 * @param mixed $acceptedValues
@@ -135,10 +179,10 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 	 */
 	protected function convertAcceptedValuesToCompatibleStructure($acceptedValues): array {
 		$acceptedValues = array_values((array) $acceptedValues);
-		
+
 		return $acceptedValues;
 	}
-	
+
 	/**
 	 *
 	 * @param array $objectToFlatten
@@ -149,10 +193,10 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 		foreach ($objectToFlatten as $objectToFlattenKey => $objectToFlattenValue) {
 			$objectToFlatten_[strtolower((string) $objectToFlattenKey)] = $objectToFlattenValue;
 		}
-		
+
 		return $objectToFlatten_;
 	}
-	
+
 	/**
 	 *
 	 * @param array $name
@@ -170,10 +214,10 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 				}
 			}
 		}
-		
+
 		return $option;
 	}
-	
+
 	/**
 	 *
 	 * @param mixed $option
@@ -187,11 +231,11 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 				if (! in_array($default, $acceptedValues)) {
 					$default = NULL;
 				}
-				
+
 				$option = $default;
 			}
 		}
-		
+
 		return $option;
 	}
 }
