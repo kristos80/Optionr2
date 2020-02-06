@@ -209,10 +209,8 @@ class Optionr implements \PetrKnap\Php\Singleton\SingletonInterface {
 		$option = $default;
 		foreach ($name as $possibleName) {
 			if (array_key_exists($possibleName, $pool)) {
-				if ($pool[$possibleName]) {
-					$option = $pool[$possibleName];
-					break;
-				}
+				$option = $pool[$possibleName];
+				break;
 			}
 		}
 
